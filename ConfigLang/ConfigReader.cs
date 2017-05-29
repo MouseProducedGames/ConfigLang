@@ -153,7 +153,7 @@ namespace ConfigLang
             var configValue = ReadConfigValue(name);
             switch (configValue.ConfigValueType)
             {
-                case ConfigValueType.Float:
+                case ConfigValueType.String:
                     return ((ConfigValue<string>)configValue);
                 case ConfigValueType.NULL:
                     throw new ArgumentNullException(name);
@@ -214,7 +214,7 @@ namespace ConfigLang
             var configValue = ReadConfigValue(name);
             switch (configValue.ConfigValueType)
             {
-                case ConfigValueType.Boolean:
+                case ConfigValueType.String:
                     output = ((ConfigValue<string>)configValue);
                     return true;
                 default:
@@ -387,7 +387,7 @@ namespace ConfigLang
             var configValue = ReadConfigValue(name);
             switch (configValue.ConfigValueType)
             {
-                case ConfigValueType.Boolean:
+                case ConfigValueType.String:
                     output = ((ConfigValue<string>)configValue).Value;
                     return true;
                 default:
