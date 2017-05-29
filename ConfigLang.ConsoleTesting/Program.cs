@@ -17,6 +17,14 @@ namespace ConfigLang.ConsoleTesting
             Console.WriteLine(reader.ReadConfigLong("ThisIsAnInt"));
             Console.WriteLine(reader.ReadConfigString("ThisIsAnIdent"));
 
+            var config = new Config();
+            reader.ReadTo(config);
+
+            Console.WriteLine(config.Works);
+            Console.WriteLine(config.Works2);
+            Console.WriteLine(config.ThisIsAnInt);
+            Console.WriteLine(config.ThisIsAnIdent);
+
             Console.ReadKey(true);
         }
     }

@@ -3,6 +3,7 @@ using Antlr4.Runtime.Tree;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -29,6 +30,208 @@ namespace ConfigLang
             treeWalker.Walk(listener, context);
 
             lookup = listener.Lookup;
+        }
+
+        public void ReadTo<T>(T config)
+            where T : class
+        {
+            Type TType = typeof(T);
+            ReadToFields(config, TType);
+            ReadToProperties(config, TType);
+        }
+
+        private void ReadToFields<T>(T config, Type TType) where T : class
+        {
+            FieldInfo[] fields =
+                            TType.GetFields(
+                                BindingFlags.Instance |
+                                BindingFlags.Public |
+                                BindingFlags.NonPublic |
+                                BindingFlags.FlattenHierarchy);
+            for (int i = 0; i < fields.Length; ++i)
+            {
+                FieldInfo field = fields[i];
+                ConfigValue configValue;
+                if (TryReadConfigValue(field.Name, out configValue) == true)
+                {
+                    switch (configValue.ConfigValueType)
+                    {
+                        case ConfigValueType.Boolean:
+                            if (field.FieldType == typeof(bool))
+                            {
+                                field.SetValue(config,
+                                    ((ConfigValue<bool>)configValue).Value);
+                            }
+                            else
+                            {
+                                throw ReadToMismatchError(field, configValue);
+                            }
+                            break;
+                        case ConfigValueType.Float:
+                            if (field.FieldType == typeof(double))
+                            {
+                                field.SetValue(config,
+                                    ((ConfigValue<double>)configValue).Value);
+                            }
+                            else if (field.FieldType == typeof(float))
+                            {
+                                field.SetValue(config,
+                                    (float)
+                                    ((ConfigValue<double>)configValue).Value);
+                            }
+                            else
+                            {
+                                throw ReadToMismatchError(field, configValue);
+                            }
+                            break;
+                        case ConfigValueType.Int:
+                            if (field.FieldType == typeof(long))
+                            {
+                                field.SetValue(config,
+                                    ((ConfigValue<long>)configValue).Value);
+                            }
+                            else if (field.FieldType == typeof(int))
+                            {
+                                field.SetValue(config,
+                                    (int)
+                                    ((ConfigValue<long>)configValue).Value);
+                            }
+                            else if (field.FieldType == typeof(short))
+                            {
+                                field.SetValue(config,
+                                    (short)
+                                    ((ConfigValue<long>)configValue).Value);
+                            }
+                            else if (field.FieldType == typeof(byte))
+                            {
+                                field.SetValue(config,
+                                    (byte)
+                                    ((ConfigValue<long>)configValue).Value);
+                            }
+                            else
+                            {
+                                throw ReadToMismatchError(field, configValue);
+                            }
+                            break;
+                        case ConfigValueType.String:
+                            if (field.FieldType == typeof(string))
+                            {
+                                field.SetValue(config,
+                                    ((ConfigValue<string>)configValue).Value);
+                            }
+                            else
+                            {
+                                throw ReadToMismatchError(field, configValue);
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
+        private void ReadToProperties<T>(T config, Type TType) where T : class
+        {
+            PropertyInfo[] properties =
+                            TType.GetProperties(
+                                BindingFlags.Instance |
+                                BindingFlags.Public |
+                                BindingFlags.NonPublic |
+                                BindingFlags.FlattenHierarchy);
+            for (int i = 0; i < properties.Length; ++i)
+            {
+                PropertyInfo property = properties[i];
+                ConfigValue configValue;
+                if (TryReadConfigValue(property.Name, out configValue) == true)
+                {
+                    switch (configValue.ConfigValueType)
+                    {
+                        case ConfigValueType.Boolean:
+                            if (property.PropertyType == typeof(bool))
+                            {
+                                property.SetValue(config,
+                                    ((ConfigValue<bool>)configValue).Value);
+                            }
+                            else
+                            {
+                                throw ReadToMismatchError(property, configValue);
+                            }
+                            break;
+                        case ConfigValueType.Float:
+                            if (property.PropertyType == typeof(double))
+                            {
+                                property.SetValue(config,
+                                    ((ConfigValue<double>)configValue).Value);
+                            }
+                            else if (property.PropertyType == typeof(float))
+                            {
+                                property.SetValue(config,
+                                    (float)
+                                    ((ConfigValue<double>)configValue).Value);
+                            }
+                            else
+                            {
+                                throw ReadToMismatchError(property, configValue);
+                            }
+                            break;
+                        case ConfigValueType.Int:
+                            if (property.PropertyType == typeof(long))
+                            {
+                                property.SetValue(config,
+                                    ((ConfigValue<long>)configValue).Value);
+                            }
+                            else if (property.PropertyType == typeof(int))
+                            {
+                                property.SetValue(config,
+                                    (int)
+                                    ((ConfigValue<long>)configValue).Value);
+                            }
+                            else if (property.PropertyType == typeof(short))
+                            {
+                                property.SetValue(config,
+                                    (short)
+                                    ((ConfigValue<long>)configValue).Value);
+                            }
+                            else if (property.PropertyType == typeof(byte))
+                            {
+                                property.SetValue(config,
+                                    (byte)
+                                    ((ConfigValue<long>)configValue).Value);
+                            }
+                            else
+                            {
+                                throw ReadToMismatchError(property, configValue);
+                            }
+                            break;
+                        case ConfigValueType.String:
+                            if (property.PropertyType == typeof(string))
+                            {
+                                property.SetValue(config,
+                                    ((ConfigValue<string>)configValue).Value);
+                            }
+                            else
+                            {
+                                throw ReadToMismatchError(property, configValue);
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
+        private static ArgumentOutOfRangeException ReadToMismatchError(FieldInfo field, ConfigValue configValue)
+        {
+            return new ArgumentOutOfRangeException(
+                configValue.ToString() +
+                " != " +
+                field.FieldType);
+        }
+
+        private static ArgumentOutOfRangeException ReadToMismatchError(PropertyInfo property, ConfigValue configValue)
+        {
+            return new ArgumentOutOfRangeException(
+                configValue.ToString() +
+                " != " +
+                property.PropertyType);
         }
 
         public bool Contains(string name)
@@ -68,7 +271,7 @@ namespace ConfigLang
         public ConfigValue ReadConfigValue(string name)
         {
             ConfigValue output;
-            if (lookup.TryGetValue(name, out output) == true)
+            if (TryReadConfigValue(name, out output) == true)
             {
                 return output;
             }
@@ -165,6 +368,11 @@ namespace ConfigLang
         public ConfigValueType ReadConfigValueType(string name)
         {
             return ReadConfigValue(name).ConfigValueType;
+        }
+
+        public bool TryReadConfigValue(string name, out ConfigValue output)
+        {
+            return lookup.TryGetValue(name, out output);
         }
 
         public bool TryReadConfigBool(string name, out ConfigValue<bool> output)
