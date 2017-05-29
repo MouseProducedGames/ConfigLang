@@ -14,10 +14,10 @@ Currently supports the following data types:
 * UTF-16 string identifiers
 
 ConfigReader:
+* Can read all supported data types.
+* Can read a configuration file to a class object, based on field and property names.
 * Can check that a value exists.
 * Can check the existence of an appropriate value type.
-* Can read all supported data types.
 * Supports an additional ConfigValue class which allows raw get/set of configuration data.
-* Can read a configuration file to a class object, based on field and property names.
 
 Does not support writing configuration files.
