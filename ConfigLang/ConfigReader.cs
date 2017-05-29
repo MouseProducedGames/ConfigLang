@@ -31,6 +31,35 @@ namespace ConfigLang
             lookup = listener.Lookup;
         }
 
+        public bool Contains(string name)
+        {
+            return lookup.ContainsKey(name);
+        }
+
+        public bool Contains(string name, ConfigValueType configValueType)
+        {
+            var configValue = ReadConfigValue(name);
+            switch (configValue.ConfigValueType)
+            {
+                case ConfigValueType.NULL:
+                    return false;
+                default:
+                    return configValue.ConfigValueType == configValueType;
+            }
+        }
+
+        public bool Contains(string name, Type valueType)
+        {
+            var configValue = ReadConfigValue(name);
+            switch (configValue.ConfigValueType)
+            {
+                case ConfigValueType.NULL:
+                    return false;
+                default:
+                    return configValue.ValueType == valueType;
+            }
+        }
+
         /// <summary>
         /// Returns ConfigNull if value does not exist
         /// </summary>

@@ -2,11 +2,34 @@
 
 namespace ConfigLang
 {
-    public abstract class ConfigValue
+    public abstract class ConfigValue : IEquatable<ConfigValue>
     {
         public abstract ConfigValueType ConfigValueType { get; }
 
         public abstract Type ValueType { get; }
+
+        public abstract bool Equals(ConfigValue other);
+
+        public override bool Equals(object obj)
+        {
+            return
+                obj is ConfigValue &&
+                Equals((ConfigValue)obj);
+        }
+
+        public abstract override int GetHashCode();
+
+        public abstract override string ToString();
+
+        public static bool operator ==(ConfigValue left, ConfigValue right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(ConfigValue left, ConfigValue right)
+        {
+            return (left == right) == false;
+        }
     }
 
     public abstract class ConfigValue<T> : ConfigValue
@@ -29,6 +52,23 @@ namespace ConfigLang
         public ConfigValue(T value)
         {
             this.value = value;
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
+
+        public override bool Equals(ConfigValue other)
+        {
+            return
+                other.ConfigValueType == ConfigValueType &&
+                Value.Equals(((ConfigValue<T>)other).Value);
+        }
+
+        public override string ToString()
+        {
+            return Value.ToString();
         }
     }
 
@@ -122,6 +162,11 @@ namespace ConfigLang
                 return typeof(string);
             }
         }
+
+        public override string ToString()
+        {
+            return Value;
+        }
     }
 
     public class ConfigNull : ConfigValue
@@ -140,6 +185,21 @@ namespace ConfigLang
             {
                 return typeof(object);
             }
+        }
+
+        public override bool Equals(ConfigValue other)
+        {
+            return other is ConfigNull;
+        }
+
+        public override int GetHashCode()
+        {
+            return 0;
+        }
+
+        public override string ToString()
+        {
+            return "NULL";
         }
     }
 }
